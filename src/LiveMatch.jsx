@@ -212,7 +212,8 @@ export default function LiveMatch({ teamA, teamB, nameA, nameB, tacticsA: initTa
     setStatus("loading")
     setPhase(phaseId)
     try {
-      const res = await fetch("http://localhost:8000/api/simulation/phase", {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000"
+      const res = await fetch(`${apiUrl}/api/simulation/phase`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ team_a: teamA, team_b: teamB, tactics_a: tacticsA, tactics_b: tacticsB, toss: tossResult, format, sport, phase: phaseId, match_state: state || matchState })
       })

@@ -374,7 +374,8 @@ function TeamPanel({ team, players, onAdd, onRemove, onReplace, onNameChange, ac
     debounceRef.current = setTimeout(async () => {
       setLoading(true)
       try {
-        const res = await fetch(`http://localhost:8000/api/players/search?q=${encodeURIComponent(query)}&sport=${sport}`)
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000"
+        const res = await fetch(`${apiUrl}/api/players/search?q=${encodeURIComponent(query)}&sport=${sport}`)
         const data = await res.json()
         setResults(data || [])
       } catch { setResults([]) }
@@ -386,9 +387,8 @@ const handlePresetSelect = async (preset) => {
   setShowPresets(false)
 
   try {
-    const res = await fetch(
-      `http://localhost:8000/api/players/preset/${preset.team_key}`
-    )
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000"
+    const res = await fetch(`${apiUrl}/api/players/preset/${preset.team_key}`)
     const squadData = await res.json()
 
     if (!Array.isArray(squadData)) return
@@ -613,7 +613,8 @@ export default function TeamBuilder({ onNext, onBack, sport }) {
     setter(true)
     try {
       const excludeIds = currentPlayers.map(p => p.id).join(",")
-      const res = await fetch(`http://localhost:8000/api/players/autofill?sport=${sport}&count=${needed}&exclude=${excludeIds}`)
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000"
+      const res = await fetch(`${apiUrl}/api/players/autofill?sport=${sport}&count=${needed}&exclude=${excludeIds}`)
       const data = await res.json()
       if (Array.isArray(data)) {
         if (team === "A") setTeamA(prev => [...prev, ...data].slice(0, 11))
