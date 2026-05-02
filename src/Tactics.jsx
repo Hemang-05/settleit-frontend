@@ -8,18 +8,23 @@ const BATTING_STYLES = [
   { id: "defensive", label: "Defensive", desc: "Grind it out. Occupy the crease.", icon: "🛡️" },
   { id: "balanced", label: "Balanced", desc: "Read the situation. Adapt.", icon: "⚖️" },
   { id: "aggressive", label: "Aggressive", desc: "Go big from ball one.", icon: "💥" },
+  { id: "anchor", label: "Anchor Role", desc: "One holds an end, others attack.", icon: "⚓" },
+  { id: "counter", label: "Counter-Attack", desc: "Absorb pressure, then explode.", icon: "🔄" },
 ]
 
 const BOWLING_STYLES = [
   { id: "pace", label: "Pace Heavy", desc: "Bounce & raw speed. Intimidate.", icon: "🔥" },
   { id: "balanced", label: "Balanced Attack", desc: "Mix it up. Keep them guessing.", icon: "🎯" },
   { id: "spin", label: "Spin Heavy", desc: "Turn & flight. Bamboozle.", icon: "🌀" },
+  { id: "containment", label: "Containment", desc: "Dry up runs. Dot-ball pressure.", icon: "🧱" },
+  { id: "strike", label: "Strike Force", desc: "Aggressive lines. Risk runs for wickets.", icon: "⚡" },
 ]
 
 const FIELD_STYLES = [
   { id: "attacking", label: "Attacking Field", desc: "Catchers in close. Go for wickets.", icon: "⚔️" },
   { id: "standard", label: "Standard", desc: "Balanced field placement.", icon: "🏟️" },
   { id: "defensive", label: "Defensive Field", desc: "Protect the boundary. Save runs.", icon: "🔒" },
+  { id: "ring", label: "Ring Field", desc: "Stop singles. Force big shots.", icon: "🔵" },
 ]
 
 function TacticSelector({ label, options, value, onChange, accentColor }) {
@@ -41,7 +46,7 @@ function TacticSelector({ label, options, value, onChange, accentColor }) {
               onClick={() => onChange(opt.id)}
               whileTap={{ scale: 0.97 }}
               style={{
-                flex: 1, minWidth: "100px",
+                flex: "1 1 auto", minWidth: "90px", maxWidth: "180px",
                 padding: "10px 12px", borderRadius: "12px",
                 border: isSelected ? `1.5px solid ${accentColor}` : "1.5px solid rgba(255,255,255,0.08)",
                 background: isSelected ? `${accentColor}18` : "rgba(255,255,255,0.03)",
@@ -52,7 +57,7 @@ function TacticSelector({ label, options, value, onChange, accentColor }) {
               <div style={{ fontSize: "18px", marginBottom: "4px" }}>{opt.icon}</div>
               <div style={{
                 fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "14px", letterSpacing: "0.05em",
+                fontSize: "13px", letterSpacing: "0.05em",
                 color: isSelected ? accentColor : "#fff",
                 marginBottom: "2px",
               }}>
@@ -60,7 +65,7 @@ function TacticSelector({ label, options, value, onChange, accentColor }) {
               </div>
               <div style={{
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: "10px", color: "rgba(255,255,255,0.35)",
+                fontSize: "9px", color: "rgba(255,255,255,0.35)",
                 lineHeight: 1.4,
               }}>
                 {opt.desc}
@@ -171,7 +176,8 @@ function CaptainNote({ value, onChange, accentColor, placeholder }) {
 }
 
 function TacticPanel({ teamLabel, players, accentColor, tactics, onChange }) {
-  const captain = players[0]
+  const captainId = tactics.captain || players[0]?.id
+  const captain = players.find(p => p.id === captainId) || players[0]
 
   return (
     <div style={{ flex: 1, minWidth: 0 }}>
@@ -184,27 +190,61 @@ function TacticPanel({ teamLabel, players, accentColor, tactics, onChange }) {
         marginBottom: "16px",
       }}>
         <div style={{
-          fontFamily: "'Bebas Neue', sans-serif",
-          fontSize: "24px", color: accentColor,
-          letterSpacing: "0.05em", marginBottom: "8px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          marginBottom: "10px",
         }}>
-          {teamLabel}
+          <div style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: "24px", color: accentColor,
+            letterSpacing: "0.05em",
+          }}>
+            {teamLabel}
+          </div>
+          {captain && (
+            <div style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: "11px", color: accentColor,
+              background: `${accentColor}18`, padding: "3px 10px",
+              borderRadius: "999px", border: `1px solid ${accentColor}44`,
+            }}>
+              © {captain.name}
+            </div>
+          )}
         </div>
 
-        {/* Mini squad preview */}
+        {/* Label */}
+        <div style={{
+          fontFamily: "'Bebas Neue', sans-serif",
+          fontSize: "11px", letterSpacing: "0.15em",
+          color: "rgba(255,255,255,0.3)", marginBottom: "8px",
+        }}>
+          TAP TO ASSIGN CAPTAIN
+        </div>
+
+        {/* Mini squad preview — clickable */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-          {players.slice(0, 11).map((p, i) => (
-            <div key={p.id} style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "10px", padding: "2px 8px",
-              borderRadius: "999px",
-              background: "rgba(255,255,255,0.06)",
-              color: i === 0 ? accentColor : "rgba(255,255,255,0.5)",
-              border: i === 0 ? `1px solid ${accentColor}44` : "1px solid transparent",
-            }}>
-              {i === 0 ? `© ${p.name}` : p.name}
-            </div>
-          ))}
+          {players.slice(0, 11).map((p) => {
+            const isCaptain = p.id === captainId
+            return (
+              <motion.button
+                key={p.id}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onChange({ ...tactics, captain: p.id })}
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: "10px", padding: "3px 9px",
+                  borderRadius: "999px", cursor: "pointer",
+                  background: isCaptain ? `${accentColor}25` : "rgba(255,255,255,0.06)",
+                  color: isCaptain ? accentColor : "rgba(255,255,255,0.5)",
+                  border: isCaptain ? `1.5px solid ${accentColor}` : "1px solid transparent",
+                  fontWeight: isCaptain ? 600 : 400,
+                  transition: "all 0.2s",
+                }}
+              >
+                {isCaptain ? `© ${p.name}` : p.name}
+              </motion.button>
+            )
+          })}
         </div>
       </div>
 
@@ -260,18 +300,16 @@ const defaultTactics = () => ({
   batting: "balanced",
   bowling: "balanced",
   field: "standard",
+  captain: null,
   captainNote: "",
 })
 
-export default function Tactics({ teamA, teamB, onSimulate, onBack }) {
+export default function Tactics({ teamA, teamB, nameA = "TEAM A", nameB = "TEAM B", onNext, onBack }) {
   const [tacticsA, setTacticsA] = useState(defaultTactics())
   const [tacticsB, setTacticsB] = useState(defaultTactics())
-  const [simulating, setSimulating] = useState(false)
 
-  const handleSimulate = async () => {
-    setSimulating(true)
-    await onSimulate(tacticsA, tacticsB)
-    setSimulating(false)
+  const handleNext = () => {
+    onNext(tacticsA, tacticsB)
   }
 
   return (
@@ -311,37 +349,25 @@ export default function Tactics({ teamA, teamB, onSimulate, onBack }) {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "12px", color: "rgba(255,255,255,0.35)",
             }}>
-              🏏 These go directly into the AI simulation engine
+              🏏 Assign captains & set strategy — then flip the coin
             </div>
           </div>
 
           <motion.button
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
-            onClick={handleSimulate}
-            disabled={simulating}
+            onClick={handleNext}
             style={{
               padding: "8px 22px", borderRadius: "999px", border: "none",
-              background: simulating ? "rgba(255,255,255,0.1)" : ORANGE,
+              background: ORANGE,
               color: "#fff", fontSize: "16px", letterSpacing: "0.08em",
               fontFamily: "'Bebas Neue', sans-serif",
-              cursor: simulating ? "not-allowed" : "pointer",
+              cursor: "pointer",
               transition: "all 0.3s",
               display: "flex", alignItems: "center", gap: "8px",
             }}
           >
-            {simulating ? (
-              <>
-                <motion.span
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  style={{ display: "inline-block" }}
-                >
-                  ⚙️
-                </motion.span>
-                SIMULATING...
-              </>
-            ) : "SIMULATE MATCH →"}
+            🪙 TOSS →
           </motion.button>
         </div>
 
@@ -363,14 +389,14 @@ export default function Tactics({ teamA, teamB, onSimulate, onBack }) {
         {/* Two tactic panels */}
         <div style={{ display: "flex", gap: "1.5rem" }}>
           <TacticPanel
-            teamLabel="TEAM A"
+            teamLabel={nameA}
             players={teamA}
             accentColor={ORANGE}
             tactics={tacticsA}
             onChange={setTacticsA}
           />
           <TacticPanel
-            teamLabel="TEAM B"
+            teamLabel={nameB}
             players={teamB}
             accentColor={BLUE}
             tactics={tacticsB}
