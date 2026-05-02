@@ -304,7 +304,7 @@ const defaultTactics = () => ({
   captainNote: "",
 })
 
-export default function Tactics({ teamA, teamB, nameA = "TEAM A", nameB = "TEAM B", onNext, onBack }) {
+export default function Tactics({ teamA, teamB, nameA = "TEAM A", nameB = "TEAM B", format, onNext, onBack }) {
   const [tacticsA, setTacticsA] = useState(defaultTactics())
   const [tacticsB, setTacticsB] = useState(defaultTactics())
 
@@ -349,7 +349,7 @@ export default function Tactics({ teamA, teamB, nameA = "TEAM A", nameB = "TEAM 
               fontFamily: "'DM Sans', sans-serif",
               fontSize: "12px", color: "rgba(255,255,255,0.35)",
             }}>
-              🏏 Assign captains & set strategy — then flip the coin
+              🏏 {format ? format.toUpperCase() : "MATCH"} • Assign captains & set strategy
             </div>
           </div>
 

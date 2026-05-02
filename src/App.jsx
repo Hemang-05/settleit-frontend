@@ -131,7 +131,7 @@ export default function App() {
     <>
       {screen === "landing" && <Landing onStart={handleStart} />}
       {screen === "teambuilder" && <TeamBuilder sport={sport} onNext={handleTeamsReady} onBack={() => setScreen("landing")} />}
-      {screen === "tactics" && <Tactics teamA={teams.teamA} teamB={teams.teamB} nameA={teams.nameA} nameB={teams.nameB} onNext={handleTacticsReady} onBack={() => setScreen("teambuilder")} />}
+      {screen === "tactics" && <Tactics teamA={teams.teamA} teamB={teams.teamB} nameA={teams.nameA} nameB={teams.nameB} format={format} onNext={handleTacticsReady} onBack={() => setScreen("teambuilder")} />}
       {screen === "toss" && <Toss nameA={teams.nameA} nameB={teams.nameB} onComplete={handleTossComplete} onBack={() => setScreen("tactics")} />}
       {screen === "live_match" && <LiveMatch teamA={teams.teamA} teamB={teams.teamB} nameA={teams.nameA} nameB={teams.nameB} tacticsA={tactics.tacticsA} tacticsB={tactics.tacticsB} tossResult={tossResult} format={format} sport={sport} onComplete={handleMatchComplete} onError={(msg) => { setError(msg); setScreen("error") }} />}
       {screen === "result" && <SimulationResult result={simResult} teamA={teams.teamA} teamB={teams.teamB} nameA={teams.nameA} nameB={teams.nameB} onPlayAgain={handlePlayAgain} />}
