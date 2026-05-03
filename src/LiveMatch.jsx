@@ -9,6 +9,55 @@ const FORMAT_PP = { odi: 10, t20: 6, t10: 3 }
 const EVENT_DELAYS = { wicket: 3000, milestone: 2500, phase_end: 2000, dramatic: 2000, boundary: 1200, six: 1500, normal: 1000 }
 const EVENT_COLORS = { wicket: "#EF4444", milestone: "#FBBF24", boundary: GREEN, six: "#A855F7", phase_end: ORANGE, dramatic: "#EC4899", normal: "rgba(255,255,255,0.6)" }
 
+const LOADING_MESSAGES = {
+  inn1_pp: [
+    "The bowler marks his run-up... 🏃",
+    "Fielders spread across the ground... 🏟️",
+    "The new ball is shining under the lights... ✨",
+    "Openers walk to the crease with intent... 🔥",
+    "Powerplay field restrictions are in place... 📍",
+    "The captain sets an attacking field... ⚡",
+    "First slip and gully in position... 🧤",
+    "The crowd roars as the match begins... 📣",
+  ],
+  inn1_mid: [
+    "The spinners come into the attack... 🌀",
+    "Mid-innings drinks break taken... 🥤",
+    "Batsmen looking to rotate the strike... 🔄",
+    "The captain shuffles his bowlers... 🤔",
+    "Death overs approaching — time to go big... 💥",
+    "The pitch is starting to turn... 🌪️",
+    "Partnership building... pressure on the bowlers... 🏗️",
+    "Field back on the boundary for the slog overs... 🏃",
+  ],
+  inn2_pp: [
+    "The chase begins under pressure... 😤",
+    "Openers look to capitalize on the powerplay... ⚡",
+    "Required rate displayed on the big screen... 📊",
+    "The crowd is buzzing for the chase... 🔊",
+    "New ball bowlers steaming in... 🔥",
+    "Aggressive field set for early wickets... 🎯",
+    "Can they get off to a flyer?... 🚀",
+  ],
+  inn2_mid: [
+    "The equation tightens... nerves of steel needed... 🧊",
+    "Required rate climbing with every dot ball... 📈",
+    "The captain brings back his strike bowler... ⚡",
+    "Fielders on the edge — one mistake costs everything... 😰",
+    "Is a collapse on the cards?... 🃏",
+    "The tail-enders pad up just in case... 🏏",
+    "Tension you can cut with a knife... 🔪",
+    "The crowd holds its breath... 🤫",
+  ],
+  super_over: [
+    "SUPER OVER! The ultimate tiebreaker... ⚡",
+    "Three batters. One bowler. Six balls. Everything on the line... 🔥",
+    "The stadium is on its feet... 🏟️",
+    "Nerves of steel or will they crack?... 💎",
+    "Every single ball matters here... 🎯",
+  ]
+}
+
 function ScoreBar({ innings1, innings2, currentInnings, nameA, nameB, firstBat }) {
   const battingFirst = firstBat === "A" ? nameA : nameB
   const battingSecond = firstBat === "A" ? nameB : nameA
@@ -49,6 +98,76 @@ function CommentaryFeed({ events, revealIndex }) {
           ● Live...
         </motion.div>
       )}
+    </div>
+  )
+}
+
+function SimulationLoader({ phase }) {
+  const [msgIndex, setMsgIndex] = useState(0)
+  const messages = LOADING_MESSAGES[phase] || LOADING_MESSAGES.inn1_pp
+
+  useEffect(() => {
+    setMsgIndex(0)
+    const interval = setInterval(() => {
+      setMsgIndex(i => (i + 1) % messages.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [phase, messages.length])
+
+  const phaseLabel = phase === "inn1_pp" ? "1st Innings Powerplay" : phase === "inn1_mid" ? "1st Innings — Middle & Death Overs" : phase === "inn2_pp" ? "2nd Innings Powerplay" : phase === "inn2_mid" ? "2nd Innings — The Chase" : "Super Over"
+
+  return (
+    <div style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
+      <motion.div
+        animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        style={{ fontSize: "56px", marginBottom: "1.2rem", filter: "drop-shadow(0 0 20px rgba(249,115,22,0.4))" }}
+      >🏏</motion.div>
+
+      <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "24px", color: "#fff", marginBottom: "6px", letterSpacing: "0.1em" }}>
+        AI IS SIMULATING...
+      </div>
+      <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "12px", color: ORANGE, marginBottom: "1.5rem", letterSpacing: "0.05em" }}>
+        {phaseLabel}
+      </div>
+
+      {/* Rotating atmospheric messages */}
+      <div style={{ minHeight: "50px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={msgIndex}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              fontFamily: "'DM Sans',sans-serif",
+              fontSize: "15px",
+              color: "rgba(255,255,255,0.55)",
+              fontStyle: "italic",
+              padding: "10px 24px",
+              borderRadius: "12px",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              maxWidth: "400px"
+            }}
+          >
+            {messages[msgIndex]}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Pulsing dots */}
+      <div style={{ display: "flex", gap: "6px", justifyContent: "center", marginTop: "1.5rem" }}>
+        {[0, 1, 2].map(i => (
+          <motion.div
+            key={i}
+            animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }}
+            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.3 }}
+            style={{ width: "8px", height: "8px", borderRadius: "50%", background: ORANGE }}
+          />
+        ))}
+      </div>
     </div>
   )
 }
@@ -316,13 +435,7 @@ export default function LiveMatch({ teamA, teamB, nameA, nameB, tacticsA: initTa
         <ScoreBar innings1={inn1Score} innings2={inn2Score} currentInnings={currentInnings} nameA={nameA} nameB={nameB} firstBat={firstBat} />
 
         {status === "loading" && (
-          <div style={{ textAlign: "center", padding: "3rem" }}>
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} style={{ fontSize: "48px", marginBottom: "1rem" }}>🏏</motion.div>
-            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "22px", color: "#fff", marginBottom: "6px" }}>AI IS SIMULATING...</div>
-            <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
-              {phase === "inn1_pp" ? "1st Innings Powerplay" : phase === "inn1_mid" ? "1st Innings — Middle & Death Overs" : phase === "inn2_pp" ? "2nd Innings Powerplay" : phase === "inn2_mid" ? "2nd Innings — The Chase" : "Super Over"}
-            </div>
-          </div>
+          <SimulationLoader phase={phase} />
         )}
 
         {(status === "revealing" || status === "tactical_pause") && (
