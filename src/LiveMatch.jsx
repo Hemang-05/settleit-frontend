@@ -219,12 +219,17 @@ export default function LiveMatch({ teamA, teamB, nameA, nameB, tacticsA: initTa
       })
       const data = await res.json()
       if (!data.success) throw new Error(data.detail || "Phase failed")
-      setCurrentPhaseData(data.data)
+      const phaseData = data.data
+      setCurrentPhaseData(phaseData)
       // Update scoreboard immediately when phase data arrives
-      const phaseScore = data.data.score || { runs: 0, wickets: 0, overs: 0 }
-      if (phaseId.startsWith("inn1")) setInn1Score(phaseScore)
-      else if (phaseId.startsWith("inn2")) setInn2Score(phaseScore)
-      setEvents(data.data.commentary_events || [])
+      if (phaseId === "super_over") {
+        // Super over has its own format — don't update inn scores from generic score
+      } else {
+        const phaseScore = phaseData.score || { runs: 0, wickets: 0, overs: 0 }
+        if (phaseId.startsWith("inn1")) setInn1Score(phaseScore)
+        else if (phaseId.startsWith("inn2")) setInn2Score(phaseScore)
+      }
+      setEvents(phaseData.commentary_events || [])
       setRevealIndex(0)
       setStatus("revealing")
     } catch (e) { setErrorMsg(e.message); if (onError) onError(e.message) }
@@ -325,42 +330,9 @@ export default function LiveMatch({ teamA, teamB, nameA, nameB, tacticsA: initTa
             <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "14px", color: battingInfo.color, letterSpacing: "0.1em", marginBottom: "8px" }}>
               {currentInnings === 1 ? "1ST INNINGS" : "2ND INNINGS"} — {battingInfo.name} BATTING
             </div>
-            {/* Live Scorecard */}
-            {currentPhaseData?.scorecard && (
-              <div style={{ padding: "12px", borderRadius: "14px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", marginBottom: "10px" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "10px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.05em" }}>
-                      <th style={{ textAlign: "left", padding: "4px 0", fontWeight: 500 }}>BATTER</th>
-                      <th style={{ textAlign: "right", padding: "4px 4px", fontWeight: 500 }}>R</th>
-                      <th style={{ textAlign: "right", padding: "4px 4px", fontWeight: 500 }}>B</th>
-                      <th style={{ textAlign: "right", padding: "4px 4px", fontWeight: 500 }}>4s</th>
-                      <th style={{ textAlign: "right", padding: "4px 4px", fontWeight: 500 }}>6s</th>
-                      <th style={{ textAlign: "right", padding: "4px 4px", fontWeight: 500 }}>SR</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentPhaseData.scorecard.map((b, i) => (
-                      <tr key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-                        <td style={{ padding: "6px 0" }}>
-                          <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "13px", color: b.out?.toLowerCase().includes("not out") ? battingInfo.color : "#fff", fontWeight: 500 }}>{b.name}</div>
-                          <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>{b.out}</div>
-                        </td>
-                        <td style={{ textAlign: "right", padding: "6px 4px", fontFamily: "'Bebas Neue',sans-serif", fontSize: "16px", color: b.runs >= 50 ? "#22C55E" : "#fff" }}>{b.runs}</td>
-                        <td style={{ textAlign: "right", padding: "6px 4px", fontFamily: "'DM Sans',sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{b.balls}</td>
-                        <td style={{ textAlign: "right", padding: "6px 4px", fontFamily: "'DM Sans',sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{b.fours}</td>
-                        <td style={{ textAlign: "right", padding: "6px 4px", fontFamily: "'DM Sans',sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{b.sixes}</td>
-                        <td style={{ textAlign: "right", padding: "6px 4px", fontFamily: "'DM Sans',sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>{b.balls > 0 ? ((b.runs / b.balls) * 100).toFixed(0) : 0}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            {status === "revealing" && revealIndex < events.length && (
-              <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ fontFamily: "'DM Sans',sans-serif", fontSize: "12px", color: "rgba(255,255,255,0.3)", padding: "8px 0", textAlign: "center" }}>
-                ● Simulating...
-              </motion.div>
+            {/* Live Commentary on Key Moments */}
+            {status === "revealing" && (
+              <CommentaryFeed events={events} revealIndex={revealIndex} />
             )}
             {status === "tactical_pause" && (
               <>
