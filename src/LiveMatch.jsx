@@ -363,10 +363,7 @@ export default function LiveMatch({ teamA, teamB, nameA, nameB, tacticsA: initTa
     return () => clearTimeout(t)
   }, [status, revealIndex, events])
 
-  useEffect(() => {
-    if (status !== "revealing" || revealIndex < events.length) return
-    handlePhaseComplete()
-  }, [revealIndex, events, status])
+  // No longer auto-transition — let the user click NEXT after reading commentary
 
   const handlePhaseComplete = () => {
     const d = currentPhaseData
@@ -445,7 +442,21 @@ export default function LiveMatch({ teamA, teamB, nameA, nameB, tacticsA: initTa
             </div>
             {/* Live Commentary on Key Moments */}
             {status === "revealing" && (
-              <CommentaryFeed events={events} revealIndex={revealIndex} />
+              <>
+                <CommentaryFeed events={events} revealIndex={revealIndex} />
+                {revealIndex >= events.length && (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: "center", marginTop: "1rem" }}>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={handlePhaseComplete}
+                      style={{ padding: "12px 32px", borderRadius: "999px", border: "none", background: ORANGE, color: "#fff", fontFamily: "'Bebas Neue',sans-serif", fontSize: "18px", cursor: "pointer", letterSpacing: "0.08em", boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}
+                    >
+                      {phase === "inn1_pp" || phase === "inn2_pp" ? "VIEW TACTICS →" : phase === "inn1_mid" ? "INNINGS BREAK →" : phase === "inn2_mid" ? "VIEW RESULT →" : phase === "super_over" ? "VIEW RESULT →" : "NEXT →"}
+                    </motion.button>
+                  </motion.div>
+                )}
+              </>
             )}
             {status === "tactical_pause" && (
               <>
