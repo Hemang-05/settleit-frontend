@@ -6,11 +6,11 @@ const ORANGE = "#F97316"
 const BLUE = "#3B82F6"
 
 const FORMATS = [
-  { id: "test", label: "Test", icon: "🏛️", overs: "5 days", desc: "The ultimate format" },
+  // { id: "test", label: "Test", icon: "🏛️", overs: "5 days", desc: "The ultimate format" },
   { id: "odi", label: "ODI", icon: "🏆", overs: "50 overs", desc: "Classic one day" },
   { id: "t20", label: "T20", icon: "⚡", overs: "20 overs", desc: "Explosive cricket" },
   { id: "t10", label: "T10", icon: "🔥", overs: "10 overs", desc: "Pure hitting" },
-  { id: "superover", label: "Super Over", icon: "💥", overs: "1 over", desc: "Ultimate decider" },
+  // { id: "superover", label: "Super Over", icon: "💥", overs: "1 over", desc: "Ultimate decider" },
 ]
 
 const ROLE_COLORS = {
